@@ -7,6 +7,9 @@ import java.awt.GridLayout;
 import java.awt.LayoutManager;
 import java.awt.Toolkit;
 import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import java.util.*;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -35,7 +38,13 @@ public final class LambdaFilter extends JFrame {
     private static final long serialVersionUID = 1760990730218643730L;
 
     private enum Command {
-        IDENTITY("No modifications", Function.identity());
+        IDENTITY("No modifications", Function.identity()),
+        LOWERCASE("convert to lowercase", str -> str.toLowerCase()),
+        COUNTCHARS("Count chars", str -> ((Integer) str.length()).toString()),
+        COUNTLINES("Count lines", str -> Long.toString(str.lines().count())),
+        SORTED("Alphabetic order", str -> Arrays.stream(str.split("[ \n]")).sorted().collect(Collectors.joining(" "))),
+        COUNTEACHWORD("Count each word", str -> countEachWord(str));
+
 
         private final String commandName;
         private final Function<String, String> fun;
@@ -52,6 +61,10 @@ public final class LambdaFilter extends JFrame {
 
         public String translate(final String s) {
             return fun.apply(s);
+        }
+
+        static String countEachWord(final String s) {
+            return Arrays.toString(s.replace(" ", "\n").lines().flatMap(t1 -> Stream.of(t1.concat(" -> " + (Long.toString((s.replace(" ", "\n").lines()).filter(t2 -> t2.equals(t1)).count()))))).collect(Collectors.toSet()).toArray());
         }
     }
 
